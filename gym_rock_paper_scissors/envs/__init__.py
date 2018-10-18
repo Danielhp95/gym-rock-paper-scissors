@@ -1,0 +1,1 @@
+from gym_rock_paper_scissors.envs.rock_paper_scissors_env import RockPaperScissorsEnv
