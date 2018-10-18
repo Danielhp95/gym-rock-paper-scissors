@@ -11,7 +11,7 @@ class Action(Enum):
 
 class RockPaperScissorsEnv(gym.Env):
 
-    def __init__(self, stacked_observations):
+    def __init__(self, stacked_observations=3):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         '''
@@ -30,11 +30,14 @@ class RockPaperScissorsEnv(gym.Env):
         '''
         if not isinstance(action, list) or len(action) != 2:
             raise ValueError("Parameter action should be a vector of length 2 containing an Action for each player")
+        if any(map(lambda a: a not in range(1, 4), action)):
+            raise ValueError("Both actions in the action vector should be either (1) Rock, (2) Paper, (3) Scissors")
 
-        new_state        = self.transition_probability_function(self.state, action)
-        reward           = self.reward_function(action)
+        encoded_action = [Action(a) for a in action]
+        new_state        = self.transition_probability_function(self.state, encoded_action)
+        reward           = self.reward_function(encoded_action)
         self.repetition += 1
-        info = []
+        info = {}
         return new_state, reward, self.repetition == self.max_repetitions, info
 
     def transition_probability_function(self, current_state, action):
@@ -67,8 +70,9 @@ class RockPaperScissorsEnv(gym.Env):
         '''
         Resets state by emptying the state vector
         '''
-        self.state = list(map(lambda x: [Action.EMPTY, Action.EMPTY], self.state))
         self.repetition = 0
+        self.state = list(map(lambda x: [Action.EMPTY, Action.EMPTY], self.state))
+        return self.state
 
     def render(self, mode='human', close=False):
         '''
