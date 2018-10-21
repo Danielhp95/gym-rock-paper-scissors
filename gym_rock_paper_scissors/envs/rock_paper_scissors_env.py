@@ -10,8 +10,14 @@ class Action(Enum):
 
 
 class RockPaperScissorsEnv(gym.Env):
+    '''
+    Repeated game of Rock Paper scissors
+    Action space: [EMPTY, ROCK, PAPER, SCISSORS]
+    State space: previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor.
+    Reward function: -1 for losing, +1 for wining.
+    '''
 
-    def __init__(self, stacked_observations=3):
+    def __init__(self, stacked_observations=3, max_repetitions=10):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         '''
@@ -20,7 +26,6 @@ class RockPaperScissorsEnv(gym.Env):
 
         self.state = [[Action.EMPTY, Action.EMPTY] for _ in range(stacked_observations)]
         self.repetition = 0
-        self.max_repetitions = 1000
 
     def step(self, action):
         '''
@@ -76,6 +81,6 @@ class RockPaperScissorsEnv(gym.Env):
 
     def render(self, mode='human', close=False):
         '''
-        TODO: Look into what this function does
+        TODO: Unimplemented
         '''
         pass
