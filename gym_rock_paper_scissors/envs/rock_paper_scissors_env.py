@@ -1,12 +1,13 @@
 from enum import Enum
 import gym
+from gym.spaces import Discrete, Tuple
 
 
 class Action(Enum):
-    EMPTY    = 0
-    ROCK     = 1
-    PAPER    = 2
-    SCISSORS = 3
+    ROCK     = 0
+    PAPER    = 1
+    SCISSORS = 2
+    EMPTY    = 3
 
 
 class RockPaperScissorsEnv(gym.Env):
@@ -24,6 +25,8 @@ class RockPaperScissorsEnv(gym.Env):
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
+        self.action_space = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
+        self.state_space  = Tuple([Discrete(len(Action)) for _ in range(stacked_observations)])
         self.state = [[Action.EMPTY, Action.EMPTY] for _ in range(stacked_observations)]
         self.repetition = 0
 
