@@ -25,8 +25,8 @@ class RockPaperScissorsEnv(gym.Env):
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
-        self.action_space = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
-        self.state_space  = Tuple([Discrete(len(Action)) for _ in range(stacked_observations)])
+        self.action_space       = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
+        self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
         self.state = [[Action.EMPTY, Action.EMPTY] for _ in range(stacked_observations)]
         self.repetition = 0
 
