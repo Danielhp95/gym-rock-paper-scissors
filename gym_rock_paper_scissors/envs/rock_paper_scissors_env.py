@@ -33,18 +33,23 @@ class RockPaperScissorsEnv(gym.Env):
         self.repetition = 0
 
     def calculate_state_space_size(self, stacked_observations, number_of_actions):
-        return sum([self.calculate_number_of_states_for_fixed_memory(number_of_actions)**memory_size
-                    for memory_size in range(0, stacked_observations + 1)])
-
-    def calculate_number_of_states_for_fixed_memory(self, number_of_actions):
         """
-        TODO: Change name
+        Computes the total number of possible states for an input memory size given a number of inputs
+        for a 2 player game. This is done by creating a (n)ary numerical system, where n
+        is the input number of actions and computing the maximum possible value given a number of digits
+        equal to 2*stacked_observations (the number 2 comes from the fact that there are 2 players)
+        :param stacked_observations: memory buffer length, amount of recall, number of joint actions stored in memory
+        :param number_of_actions: number of actions that each player can take
         """
-        return number_of_actions**2
+        return sum([(number_of_actions**2)**memory_size for memory_size in range(0, stacked_observations + 1)])
 
     def hash_state(self, state, number_of_actions=3):
         """
-        TODO: Document
+        Hashes the input state into a decimal bounded by [0, state_space_size).
+        This is done by changing the state to a (n)ary numerical system and
+        offseting for all the states that have some empty values.
+        :param state: state to hash into a 0-index decimal
+        :param number_of_actions: number of actions that each player can take
         """
         offset = self.calculate_hash_offset(state, number_of_actions)
         filetered_state = filter(lambda x: x is not None, state)
@@ -54,7 +59,10 @@ class RockPaperScissorsEnv(gym.Env):
 
     def calculate_hash_offset(self, state, number_of_actions):
         """
-        TODO: Document
+        Given a state, it calculates how many possible states there are 
+        that contain an empty action. Used to offset the overall hash.
+        :param state: state to hash into a 0-index decimal
+        :param number_of_actions: number of actions that each player can take
         """
         number_of_empty_actions = len(list(filter(lambda x: x is None, state)))
         number_of_offsets_to_compensate = len(state) - number_of_empty_actions
