@@ -17,7 +17,7 @@ class RockPaperScissorsEnv(gym.Env):
     Reward function: -1 for losing, +1 for wining.
     '''
 
-    def __init__(self, stacked_observations=3, max_repetitions=10):
+    def __init__(self, stacked_observations=3, max_repetitions=100000):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         :param max_repetitions: Number of times the game will be played
@@ -28,9 +28,11 @@ class RockPaperScissorsEnv(gym.Env):
         self.action_space       = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
         self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
         self.state = [None for _ in range(stacked_observations)]
-        self.state_space_size = self.calculate_state_space_size(stacked_observations, len([a for a in Action]))
+        self.action_space_size = len([a for a in Action])
+        self.state_space_size = self.calculate_state_space_size(stacked_observations, self.action_space_size)
 
         self.repetition = 0
+        self.max_repetitions = max_repetitions
 
     def calculate_state_space_size(self, stacked_observations, number_of_actions):
         """
@@ -59,7 +61,7 @@ class RockPaperScissorsEnv(gym.Env):
 
     def calculate_hash_offset(self, state, number_of_actions):
         """
-        Given a state, it calculates how many possible states there are 
+        Given a state, it calculates how many possible states there are
         that contain an empty action. Used to offset the overall hash.
         :param state: state to hash into a 0-index decimal
         :param number_of_actions: number of actions that each player can take
@@ -77,8 +79,8 @@ class RockPaperScissorsEnv(gym.Env):
         '''
         if not isinstance(action, list) or len(action) != 2:
             raise ValueError("Parameter action should be a vector of length 2 containing an Action for each player")
-        if any(map(lambda a: a not in range(1, 4), action)):
-            raise ValueError("Both actions in the action vector should be either (1) Rock, (2) Paper, (3) Scissors")
+        if any(map(lambda a: a not in range(0, 3), action)):
+            raise ValueError("Both actions in the action vector should be either (0) Rock, (1) Paper, (2) Scissors")
 
         encoded_action = [Action(a) for a in action]
         new_state        = self.transition_probability_function(self.state, encoded_action)
