@@ -7,13 +7,12 @@ class Action(Enum):
     ROCK     = 0
     PAPER    = 1
     SCISSORS = 2
-    EMPTY    = 3
 
 
 class RockPaperScissorsEnv(gym.Env):
     '''
     Repeated game of Rock Paper scissors
-    Action space: [EMPTY, ROCK, PAPER, SCISSORS]
+    Action space: [ROCK, PAPER, SCISSORS]
     State space: previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor.
     Reward function: -1 for losing, +1 for wining.
     '''
@@ -21,14 +20,46 @@ class RockPaperScissorsEnv(gym.Env):
     def __init__(self, stacked_observations=3, max_repetitions=10):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
+        :param max_repetitions: Number of times the game will be played
         '''
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
         self.action_space       = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
         self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
-        self.state = [[Action.EMPTY, Action.EMPTY] for _ in range(stacked_observations)]
+        self.state = [None for _ in range(stacked_observations)]
+        self.state_space_size = self.calculate_state_space_size(stacked_observations, len([a for a in Action]))
+
         self.repetition = 0
+
+    def calculate_state_space_size(self, stacked_observations, number_of_actions):
+        return sum([self.calculate_number_of_states_for_fixed_memory(number_of_actions)**memory_size
+                    for memory_size in range(0, stacked_observations + 1)])
+
+    def calculate_number_of_states_for_fixed_memory(self, number_of_actions):
+        """
+        TODO: Change name
+        """
+        return number_of_actions**2
+
+    def hash_state(self, state, number_of_actions=3):
+        """
+        TODO: Document
+        """
+        offset = self.calculate_hash_offset(state, number_of_actions)
+        filetered_state = filter(lambda x: x is not None, state)
+        flattened_ternary_state = [action.value for joint_action in filetered_state for action in joint_action]
+        decimal_from_ternary = sum([number_of_actions**i * value for i, value in enumerate(flattened_ternary_state[::-1])])
+        return decimal_from_ternary + offset
+
+    def calculate_hash_offset(self, state, number_of_actions):
+        """
+        TODO: Document
+        """
+        number_of_empty_actions = len(list(filter(lambda x: x is None, state)))
+        number_of_offsets_to_compensate = len(state) - number_of_empty_actions
+        offset = sum([(number_of_actions**2)**i for i in range(0, number_of_offsets_to_compensate)])
+        return offset
 
     def step(self, action):
         '''
@@ -79,7 +110,7 @@ class RockPaperScissorsEnv(gym.Env):
         Resets state by emptying the state vector
         '''
         self.repetition = 0
-        self.state = list(map(lambda x: [Action.EMPTY, Action.EMPTY], self.state))
+        self.state = list(map(lambda x: None, self.state))
         return self.state
 
     def render(self, mode='human', close=False):
