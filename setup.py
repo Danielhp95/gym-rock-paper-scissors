@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='gym_rock_paper_scissors',
-      version='0.0.122',
+      version='0.0.123',
       description='OpenAI gym environment for a repeated game of Rock-Paper-Scissors',
       url='https://github.com/Danielhp95/gym-rock-paper-scissors',
       author='Sarios',
