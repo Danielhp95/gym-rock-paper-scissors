@@ -6,6 +6,6 @@ setup(name='gym_rock_paper_scissors',
       url='https://github.com/Danielhp95/gym-rock-paper-scissors',
       author='Sarios',
       author_email='rockpapersass@xcape.com',
-      packages=['gym_rock_paper_scissors'],
+      packages=['gym_rock_paper_scissors', 'fixed_agents'],
       install_requires=['gym']
       )
