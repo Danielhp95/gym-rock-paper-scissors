@@ -8,7 +8,7 @@ class MixedStrategyAgent():
     the set of all possible actions.
     '''
 
-    def __init__(self, support_vector):
+    def __init__(self, support_vector, name):
         '''
         Checks that the support vector is a valid probability distribution
         :param support_vector: support vector for all three possible pure strategies [ROCK, PAPER, SCISSORS]
@@ -19,6 +19,7 @@ class MixedStrategyAgent():
         if sum(support_vector) != 1.0:
             raise ValueError('The sum of all supports in the support_vector should sum up to 1. Given supports: {}'.format(support_vector))
         self.support_vector = support_vector
+        self.name = name
 
     def take_action(self, state):
         '''
