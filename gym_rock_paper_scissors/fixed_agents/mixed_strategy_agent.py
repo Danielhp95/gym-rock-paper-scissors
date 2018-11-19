@@ -30,3 +30,6 @@ class MixedStrategyAgent():
 
     def handle_experience(self, *args):
         pass
+
+    def clone(self, training):
+        return MixedStrategyAgent(support_vector=self.support_vector, name=self.name)
