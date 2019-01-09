@@ -1,13 +1,13 @@
 from enum import Enum
 import gym
 from gym.spaces import Discrete, Tuple
+import numpy as np
 
 
 class Action(Enum):
     ROCK     = 0
     PAPER    = 1
     SCISSORS = 2
-
 
 class RockPaperScissorsEnv(gym.Env):
     '''
@@ -30,6 +30,8 @@ class RockPaperScissorsEnv(gym.Env):
         self.state = [None for _ in range(stacked_observations)]
         self.action_space_size = len([a for a in Action])
         self.state_space_size = self.calculate_state_space_size(stacked_observations, self.action_space_size)
+        self.one_hot_state = np.zeros(self.state_space_size)
+        self.one_hot_state[0] = 1.0
 
         self.repetition = 0
         self.max_repetitions = max_repetitions
@@ -57,7 +59,9 @@ class RockPaperScissorsEnv(gym.Env):
         filetered_state = filter(lambda x: x is not None, state)
         flattened_ternary_state = [action.value for joint_action in filetered_state for action in joint_action]
         decimal_from_ternary = sum([number_of_actions**i * value for i, value in enumerate(flattened_ternary_state[::-1])])
-        return decimal_from_ternary + offset
+        self.one_hot_state = np.zeros(self.state_space_size)
+        self.one_hot_state[decimal_from_ternary+offset] = 1.0
+        return self.one_hot_state
 
     def calculate_hash_offset(self, state, number_of_actions):
         """
