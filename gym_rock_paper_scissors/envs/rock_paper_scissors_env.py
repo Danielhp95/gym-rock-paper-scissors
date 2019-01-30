@@ -17,7 +17,7 @@ class RockPaperScissorsEnv(gym.Env):
     Reward function: -1 for losing, +1 for wining.
     '''
 
-    def __init__(self, stacked_observations=3, max_repetitions=100000):
+    def __init__(self, stacked_observations=3, max_repetitions=1000):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         :param max_repetitions: Number of times the game will be played
@@ -25,7 +25,7 @@ class RockPaperScissorsEnv(gym.Env):
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
-        self.action_space       = Tuple([Discrete(len(Action) - 1)]) # Substract 1 because Action.EMPTY can never be taken by an agent
+        self.action_space       = Tuple([Discrete(len(Action))])
         self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
         self.state = [None for _ in range(stacked_observations)]
         self.action_space_size = len([a for a in Action])
