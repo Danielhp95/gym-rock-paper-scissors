@@ -17,7 +17,7 @@ class RockPaperScissorsEnv(gym.Env):
     Reward function: -1 for losing, +1 for wining.
     '''
 
-    def __init__(self, stacked_observations=3, max_repetitions=1000):
+    def __init__(self, stacked_observations=3, max_repetitions=10):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         :param max_repetitions: Number of times the game will be played
@@ -25,7 +25,7 @@ class RockPaperScissorsEnv(gym.Env):
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
-        self.action_space       = Tuple([Discrete(len(Action))])
+        self.action_space       = Tuple([Discrete(len(Action)), Discrete(len(Action))])
         self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
         self.state = [None for _ in range(stacked_observations)]
         self.action_space_size = len([a for a in Action])
@@ -77,7 +77,7 @@ class RockPaperScissorsEnv(gym.Env):
         computing the reward for all agents, and detecting if the environment has reached a terminal state
         :param action: vector containing an action for both players
         '''
-        if not isinstance(action, list) or len(action) != 2:
+        if len(action) != 2:
             raise ValueError("Parameter action should be a vector of length 2 containing an Action for each player")
         if any(map(lambda a: a not in range(0, 3), action)):
             raise ValueError("Both actions in the action vector should be either (0) Rock, (1) Paper, (2) Scissors")
@@ -87,7 +87,8 @@ class RockPaperScissorsEnv(gym.Env):
         reward           = self.reward_function(encoded_action)
         self.repetition += 1
         info = {}
-        return new_state, reward, self.repetition == self.max_repetitions, info
+        done = self.repetition == self.max_repetitions
+        return new_state, reward, done, info
 
     def transition_probability_function(self, current_state, action):
         '''
