@@ -11,10 +11,12 @@ class Action(Enum):
 
 class RockPaperScissorsEnv(gym.Env):
     '''
-    Repeated game of Rock Paper scissors
-    Action space: [ROCK, PAPER, SCISSORS]
-    State space: previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor.
-    Reward function: -1 for losing, +1 for wining.
+    Repeated game of Rock Paper scissors with imperfect recall
+    Action space:      [ROCK, PAPER, SCISSORS]
+    State space:       Previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor
+    Observation space: The environment's true state. Both players get their individual and identical observation. This redundancy
+                       is introduced to present the same interface as Gym envs with partial observability.
+    Reward function:   -1/+1 for losing / winning a single round
     '''
 
     def __init__(self, stacked_observations=3, max_repetitions=10):
@@ -88,7 +90,7 @@ class RockPaperScissorsEnv(gym.Env):
         self.repetition += 1
         info = {}
         done = self.repetition == self.max_repetitions
-        return new_state, reward, done, info
+        return [new_state, new_state], reward, done, info
 
     def transition_probability_function(self, current_state, action):
         '''
@@ -119,13 +121,11 @@ class RockPaperScissorsEnv(gym.Env):
     def reset(self):
         '''
         Resets state by emptying the state vector
+        :returns: state observation for each player
         '''
         self.repetition = 0
         self.state = list(map(lambda x: None, self.state))
-        return self.state
+        return [self.state, self.state]
 
     def render(self, mode='human', close=False):
-        '''
-        TODO: Unimplemented
-        '''
-        pass
+        raise NotImplementedError('Rendering has not been coded yet')
