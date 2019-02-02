@@ -1,6 +1,6 @@
 from enum import Enum
 import gym
-from gym.spaces import Discrete, Tuple
+from gym.spaces import Discrete, Tuple, Box
 
 
 class Action(Enum):
@@ -12,11 +12,12 @@ class Action(Enum):
 class RockPaperScissorsEnv(gym.Env):
     '''
     Repeated game of Rock Paper scissors with imperfect recall
-    Action space:      [ROCK, PAPER, SCISSORS]
-    State space:       Previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor
-    Observation space: The environment's true state. Both players get their individual and identical observation. This redundancy
-                       is introduced to present the same interface as Gym envs with partial observability.
-    Reward function:   -1/+1 for losing / winning a single round
+    Action space:       [ROCK, PAPER, SCISSORS]
+    State space:        Previous _n_ moves by both players, where _n_ is parameterized as "stacked_observations" in the constructor
+    Observation space:  The environment's true state is replicated for both players.
+                        Both players get their individual and identical observation. This redundancy
+                        is introduced to present the same interface as Gym envs with partial observability.
+    Reward function:    -1/+1 for losing / winning a single round
     '''
 
     def __init__(self, stacked_observations=3, max_repetitions=10):
@@ -27,8 +28,10 @@ class RockPaperScissorsEnv(gym.Env):
         if not isinstance(stacked_observations, int) or stacked_observations <= 0:
             raise ValueError("Parameter stacked_observations should be an integer greater than 0")
 
+        number_of_players = 2
         self.action_space       = Tuple([Discrete(len(Action)), Discrete(len(Action))])
-        self.observation_space  = Tuple([Tuple([Discrete(len(Action)), Discrete(len(Action))]) for _ in range(stacked_observations)])
+        single_observation_space = Box(low=0, high=len(Enum), shape=(stacked_observations, number_of_players), dtype=int)
+        self.observation_space  = Tuple([single_observation_space, single_observation_space])
         self.state = [None for _ in range(stacked_observations)]
         self.action_space_size = len([a for a in Action])
         self.state_space_size = self.calculate_state_space_size(stacked_observations, self.action_space_size)
