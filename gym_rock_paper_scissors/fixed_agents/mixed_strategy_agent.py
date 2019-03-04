@@ -31,5 +31,11 @@ class MixedStrategyAgent():
     def handle_experience(self, *args):
         pass
 
-    def clone(self, training):
+    def clone(self, training=False):
         return MixedStrategyAgent(support_vector=self.support_vector, name=self.name)
+
+    def clone4queue(self,training=False):
+        return self.clone(training=training)
+
+    def queue2policy(self):
+        return self
