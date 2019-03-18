@@ -1,5 +1,6 @@
 from enum import Enum
 
+from copy import deepcopy
 import numpy as np
 
 import gym
@@ -118,7 +119,7 @@ class RockPaperScissorsEnv(gym.Env):
         self.repetition += 1
         info = {}
         done = self.repetition == self.max_repetitions
-        return [new_state, new_state], reward, done, info
+        return [deepcopy(new_state), deepcopy(new_state)], reward, done, info
 
     def transition_probability_function(self, current_state, joint_action):
         '''
@@ -181,7 +182,7 @@ class RockPaperScissorsEnv(gym.Env):
         '''
         self.repetition = 0
         self.state = self.initial_state
-        return [self.state, self.state]
+        return [deepcopy(self.state), deepcopy(self.state)]
 
     def render(self, mode='human', close=False):
         raise NotImplementedError('Rendering has not been coded yet')
