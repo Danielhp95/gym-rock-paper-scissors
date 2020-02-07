@@ -25,7 +25,9 @@ class RockPaperScissorsEnv(gym.Env):
     Reward function:    -1/+1 for losing / winning a single round
     '''
 
-    def __init__(self, stacked_observations=3, max_repetitions=10):
+    def __init__(self, stacked_observations=3, max_repetitions=10,
+                 payoff_rock_vs_paper=-1, payoff_rock_vs_scissors=1,
+                 payoff_paper_vs_scissors=-1):
         '''
         :param stacked_observations: Number of action pairs to be considered as part of the state
         :param max_repetitions: Number of times the game will be played
@@ -47,6 +49,11 @@ class RockPaperScissorsEnv(gym.Env):
 
         self.repetition = 0
         self.max_repetitions = max_repetitions
+
+        # Payoffs
+        self.payoff_rock_vs_paper = payoff_rock_vs_paper
+        self.payoff_rock_vs_scissors = payoff_rock_vs_scissors
+        self.payoff_paper_vs_scissors = payoff_paper_vs_scissors
 
         self.state = self.initial_state
 
@@ -166,12 +173,18 @@ class RockPaperScissorsEnv(gym.Env):
         :param action: action vector containing action for both players
         :returns: reward vector cotanining reward for each agent
         '''
-        if action[0] == Action.ROCK and action[1] == Action.PAPER: return [-1, 1]
-        if action[0] == Action.ROCK and action[1] == Action.SCISSORS: return [1, -1]
-        if action[0] == Action.PAPER and action[1] == Action.ROCK: return [1, -1]
-        if action[0] == Action.PAPER and action[1] == Action.SCISSORS: return [-1, 1]
-        if action[0] == Action.SCISSORS and action[1] == Action.ROCK: return [-1, 1]
-        if action[0] == Action.SCISSORS and action[1] == Action.PAPER: return [1, -1]
+        if action[0] == Action.ROCK and action[1] == Action.PAPER:
+            return [self.payoff_rock_vs_paper, -self.payoff_rock_vs_paper]
+        if action[0] == Action.ROCK and action[1] == Action.SCISSORS:
+            return [self.payoff_rock_vs_scissors, -self.payoff_rock_vs_scissors]
+        if action[0] == Action.PAPER and action[1] == Action.ROCK:
+            return [-self.payoff_rock_vs_paper, self.payoff_rock_vs_paper]
+        if action[0] == Action.PAPER and action[1] == Action.SCISSORS:
+            return [self.payoff_paper_vs_scissors, -self.payoff_paper_vs_scissors]
+        if action[0] == Action.SCISSORS and action[1] == Action.ROCK:
+            return [-self.payoff_rock_vs_scissors, self.payoff_rock_vs_scissors]
+        if action[0] == Action.SCISSORS and action[1] == Action.PAPER:
+            return [-self.payoff_paper_vs_scissors, self.payoff_paper_vs_scissors]
         if action[0] == action[1]: return [0, 0]
         raise ValueError("One of the player actions was empty")
 
